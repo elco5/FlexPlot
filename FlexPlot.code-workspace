@@ -3,5 +3,12 @@
         {
             "path": ".."
         }
-    ]
+    ],
+    "settings": {
+        "python.linting.pylintEnabled": true,
+        "python.linting.pylintArgs": [
+            "--enable=logging-not-lazy",
+            "--disable=logging-fstring-interpolation"
+        ],
+    }
 }
