@@ -1,10 +1,24 @@
 import os
-import sys
 
-sys.path.append('../')
-from utilities.logging import setup_logger
+DEBUG = False
+
+if DEBUG:
+    # ### DEBUG IMPORT
+    # When using AREPL name=='__main__' 
+    # Relative imports wont work. 
+    import sys
+    sys.path.append('../')
+    from utilities.logging import setup_logger
+    
+elif not DEBUG:
+    #### NON-DEBUG IMPORT
+    # EXAMPLE: from ..package1 import module1
+    # This is a relative import that goes up one level (..) 
+    # and then into the package1 directory.
+    from utilities.logging import setup_logger
 
 logger = setup_logger()
+
 logger.info("Logging intitialized...")
 
 class DataLoader: 
@@ -37,7 +51,7 @@ class DataLoader:
     
     def auto_load(self, file_path)-> None:
         logger.info("Autoloader runining...")
-        self.get_file_attributes(file_path)
+        self.get_file_attributes(file_path) 
     
 
     def get_file_attributes(self, file_path) -> None:
@@ -100,7 +114,9 @@ class DataLoader:
 
     #     final_header = date_time_parts + tag_comment_parts
     #     return final_header
+    
 
-file_path = r"C:\Users\ecountrywood\dev\tools\FlexPlot\tests\sample_data\Overvoltage_264V_PM_0001.csv"
 
-data = DataLoader(file_path=file_path)
+if DEBUG:
+    file_path = r"C:\Users\ecountrywood\dev\tools\FlexPlot\tests\sample_data\sample_input_files\Overvoltage_264V_PM_0001.csv"
+    data = DataLoader(file_path=file_path)

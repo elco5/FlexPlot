@@ -7,4 +7,5 @@ def setup_logger():
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     logger = logging.getLogger()
+    
     return logger
