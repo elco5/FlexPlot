@@ -1,4 +1,5 @@
 # my ignores
+extras/*
 data/raw_outputs/*
 data/clean_outputs/*
 data/pdf_inputs/*
