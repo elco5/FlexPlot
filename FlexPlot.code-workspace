@@ -6,6 +6,7 @@
     ],
     "settings": {
         "python.linting.pylintEnabled": true,
+        "editor.showFoldingControls": "always",
         "python.linting.pylintArgs": [
             "--enable=logging-not-lazy",
             "--disable=logging-fstring-interpolation"
