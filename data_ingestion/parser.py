@@ -32,18 +32,18 @@ def fetch_wt3000_header(file_path):
                 break
     return header_row
         
-def fetch_smartdaq_header(self):
+# def fetch_smartdaq_header(self):
 
-    # Find the lines that contain the parts of the header
-    tag_comment_line = [line for line in lines if "Tag Comment" in line][0]
-    date_time_line = [
-        line for line in lines if "Date" in line and "Time" in line][0]
+#     # Find the lines that contain the parts of the header
+#     tag_comment_line = [line for line in lines if "Tag Comment" in line][0]
+#     date_time_line = [
+#         line for line in lines if "Date" in line and "Time" in line][0]
 
-    # Extract the relevant parts and construct the final header
-    tag_comment_parts = tag_comment_line.split(
-        "\t")[2:]  # Adjust based on the actual structure
-    # Assuming "Date" and "Time" are the first two elements
-    date_time_parts = date_time_line.split("\t")[:2]
+#     # Extract the relevant parts and construct the final header
+#     tag_comment_parts = tag_comment_line.split(
+#         "\t")[2:]  # Adjust based on the actual structure
+#     # Assuming "Date" and "Time" are the first two elements
+#     date_time_parts = date_time_line.split("\t")[:2]
 
-    final_header = date_time_parts + tag_comment_parts
-    return final_header
+#     final_header = date_time_parts + tag_comment_parts
+#     return final_header
