@@ -28,7 +28,6 @@ class DataLoader:
         }
         self.metadata = {
             "equipment_type": None,
-            "header_fetching_method": None,
         }
 
         logger.info(f"DataLoader object from filename: {file_path}")
@@ -88,7 +87,6 @@ class DataLoader:
         for device, attributes in parser.metadata_dictionary.items():
             if any(keyword in first_n_lines for keyword in attributes["keywords"]):
                 self.equipment_type = device
-                self.header_fetching_method = attributes["header_fetching_method"]
                 logger.info(f"Identified equipment type: {self.equipment_type}")
 
     def get_header_row(self) -> None:
