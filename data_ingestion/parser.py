@@ -28,9 +28,7 @@ def fetch_wt3000_header(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         for line in f:
             if "Store No." in line:
-                print(line)
                 header_row = line
-                logger.info(f"parser found header row: {header_row}")
                 break
     return header_row
         
