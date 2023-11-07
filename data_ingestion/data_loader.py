@@ -1,6 +1,8 @@
 import os
+import importlib
+import parser
 
-DEBUG = True
+DEBUG = False
 
 if DEBUG:
     # ### DEBUG IMPORT
@@ -15,6 +17,8 @@ elif not DEBUG:
     # EXAMPLE: from ..package1 import module1
     # This is a relative import that goes up one level (..)
     # and then into the package1 directory.
+    import sys
+    sys.path.append('../')
     from utilities.logging import setup_logger
 
 logger = setup_logger()
@@ -37,15 +41,16 @@ class DataLoader:
             'type': None,
         }
         self.data = {
-            'header': None,
-            'dataframe': None,
+            'header_row': None,
+            'data_frame': None,
         }
         self.metadata = {
-            'measurement_device': None,
+            'equipment_type': None,
+            'header_fetching_method': None,
         }
 
         logger.info(
-            f"DataLoader object succesfully created.") # with filename: {file_path}")
+            f"DataLoader object from filename: {file_path}")
 
         
 
@@ -57,7 +62,8 @@ class DataLoader:
         logger.info("Autoloader runining...")
         self.get_file_attributes(file_path)
         logger.info("Attempting to parse file metadata...")
-        # self.parse_metadata()
+        self.parse_metadata()
+        self.get_header_row()
 
     def get_file_attributes(self, file_path) -> None:
         if os.path.isdir(file_path):
@@ -82,76 +88,69 @@ class DataLoader:
         elif self.file_info['type'].lower() not in ['.csv', '.xlsx']:
             logger.warning(f"Unexpected file type: {self.file_info['type']}")
 
-        logger.info(f"File attributes successfully populated from: {self.file_info['base_name']}")
+        logger.info(f"File attributes populated from: {self.file_info['base_name']}")
 
-    # def get_file_attributes(self, file_path) -> None:
-
-    #     self.file_info['full_path'] = file_path
-    #     # Extract the directory and base filename with extension
-    #     self.file_info['directory'], self.file_info['base_name'] = os.path.split(file_path)
-    #     self.file_info['type'] = os.path.splitext(self.file_info['base_name'])[1]
-    #     logger.info(f"File attributes succesfully populated")# with: {self.file_info}")
-
-    def parse_metadata(self):
-
+    def parse_metadata(self)-> None:
+        
         lines_to_read = 5
-        with open(self.file_info['full_path'], 'r', encoding='utf-8') as f:
-            # N is the number of lines you want to read
-            lines = [f.readline().strip() for _ in range(lines_to_read)]
+        
+        def read_first_n_lines(file_path,lines_to_read):
+            lines = []
+            with open(file_path, 'r') as file:
+                for _ in range(lines_to_read):
+                    line = file.readline()
+                    if not line:
+                        break
+                    lines.append(line)
+            return ''.join(lines)
 
-            # for keyword, header_fetching_method in config.metadata_dictionary.items:
-            #     # look for metadata keywords
-            #     # and determine header_fetching_method
+        # Read the first 5 lines of the file
+        first_n_lines = read_first_n_lines(self.file_info['full_path'],lines_to_read)
+        logger.debug(f"First {lines_to_read} lines of the file: {first_n_lines}")
 
-    def find_data_pattern(self, file_type):
-        # Logic to scan for data patterns
-        # Useful for double-checking or handling complex files
-        pass
+        # Iterate over each item in the metadata dictionary
+        for device, attributes in parser.metadata_dictionary.items():
 
-    def load_data(self, file_type, header_row):
+            if any(keyword in first_n_lines for keyword in attributes['keywords']):
+                self.equipment_type = device
+                self.header_fetching_method = attributes['header_fetching_method']
+                logger.info(f"Identified equipment type: {self.equipment_type}")
+    
+    def get_header_row(self) -> None:
+        # use the equipment type to get the header by using the associated function
+        if self.equipment_type == 'WT3000':
+            header_row = parser.fetch_wt3000_header(self.file_info['full_path'])
+            self.data["header_row"] = header_row
+            print('found')
+            logger.info(f"Found header row: {header_row}")
+        
+        elif self.equipment_type == 'smartdaq':
+            header_row = parser.fetch_smartdaq_header(self.file_info['full_path'])
+            self.data["header_row"] = header_row
+            logger.info(f"Found header row: {header_row}")
+            
+        elif header_row is None:
+            logger.error(f"No header fetching method found for {self.equipment_type}")
+            raise ValueError(f"No header fetching method found for {self.equipment_type}")
+    
+    
+    def load_data(self):
         # Logic to load the data into a DataFrame
-        # Handle different file types and apply transformations as needed
         pass
 
-    # def auto_load(self):
-    #     file_type = self.determine_file_type()
-    #     header_row, metadata = self.parse_metadata(file_type)
 
-    #     if header_row is None:
-    #         header_row = self.find_data_pattern(file_type)
-
-    #     df = self.load_data(file_type, header_row)
-    #     return df, metadata
-
-        # # Read the specific lines that contain parts of the header based on equipment type
-        # if equipment_type == 'SmartDAQ':
-        #     header_row = self.parse_smartdaq_header()
-
-    # def parse_smartdaq_header(self):
-
-    #     # Find the lines that contain the parts of the header
-    #     tag_comment_line = [line for line in lines if "Tag Comment" in line][0]
-    #     date_time_line = [
-    #         line for line in lines if "Date" in line and "Time" in line][0]
-
-    #     # Extract the relevant parts and construct the final header
-    #     tag_comment_parts = tag_comment_line.split(
-    #         "\t")[2:]  # Adjust based on the actual structure
-    #     # Assuming "Date" and "Time" are the first two elements
-    #     date_time_parts = date_time_line.split("\t")[:2]
-
-    #     final_header = date_time_parts + tag_comment_parts
-    #     return final_header
 
 
 if DEBUG:
-    file_path = r"C:\Users\ecountrywood\dev\tools\FlexPlot\tests\sample_data\sample_input_files\Overvoltage_264V_PM_0001.csv"
+
+    file_path = r"../tests/sample_data/wt3000_file.csv"
     data = DataLoader(file_path=file_path)
     data.auto_load(file_path)
 
 else:
     if __name__ == '__main__':
-        file_path = r"C:\Users\ecountrywood\dev\tools\FlexPlot\tests\sample_data\sample_input_files\Overvoltage_264V_PM_0001.csv"
+
+        file_path = r"../tests/sample_data/wt3000_file.csv"
         data = DataLoader(file_path=file_path)
         data.auto_load(file_path)
     
