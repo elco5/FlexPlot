@@ -2,7 +2,7 @@ from typing import Dict, Any, List, Callable, Tuple
 import os
 import pandas as pd
 
-import parser
+from . import flex_parser as fp 
 from utilities.logging import setup_logger
 
 
@@ -35,7 +35,7 @@ class DataLoader:
             "equipment_type": None,
         }
 
-        logger.info(f"DataLoader object from filename: {file_path}")
+        logger.info(f"DataLoader object created. Referenceing filename: {file_path}")
 
     ####################################################################
     # CLASS METHODS
@@ -90,7 +90,7 @@ class DataLoader:
         logger.debug(f"First {lines_to_read} lines of the file: {first_n_lines}")
 
         # Iterate over each item in the metadata dictionary
-        for device, attributes in parser.metadata_dictionary.items():
+        for device, attributes in fp.metadata_dictionary.items():
             if any(keyword in first_n_lines for keyword in attributes["keywords"]):
                 self.equipment_type = device
                 logger.info(f"Identified equipment type: {self.equipment_type}")
@@ -100,8 +100,8 @@ class DataLoader:
         HeaderFetchFunction = Callable[[str], Tuple[str, int]]
         # Dictionary mapping equipment types to their header fetching functions
         header_fetch_methods: Dict[str, HeaderFetchFunction] = {
-            "WT3000": parser.fetch_wt3000_header,
-            "smartdaq": parser.fetch_smartdaq_header,
+            "WT3000": fp.fetch_wt3000_header,
+            "smartdaq": fp.fetch_smartdaq_header,
         }
 
         # Get the appropriate header fetching function based on the equipment type
@@ -130,7 +130,7 @@ class DataLoader:
 
         # Now, read the rest of the data into a DataFrame, skipping rows up to the header
         # and setting the column names to the ones you've extracted
-        df = pd.read_csv(file_path, skiprows=self.data["first_data_row"], header=None)
+        df = pd.read_csv(self.file_info['full_path'], skiprows=self.data["first_data_row"], header=None)
         df.columns = self.data["columns"]
         self.data["data_frame"] = df
         logger.info(f"Loaded data into DataFrame:\n {df.head(3)}")
