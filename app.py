@@ -5,6 +5,7 @@ import io
 import pandas as pd
 
 from utilities.logging import setup_logger
+from data_ingestion.data_loader import DataLoader
 
 logger = setup_logger()
 
@@ -64,6 +65,7 @@ def change_log_level(value):
 def upload_file(contents, filename):
     if contents is not None:
         logger.info(f"Received file: {filename}")
+        
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
         try:

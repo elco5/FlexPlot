@@ -127,9 +127,7 @@ class DataLoader:
     
     def load_data(self):
         # Logic to load the data into a DataFrame using  
-        # self.data["header"] as the header, 
-        # and self.data["first_data_row"] as the first row of data
-        # self.clean_header()
+
         # Now, read the rest of the data into a DataFrame, skipping rows up to the header
         # and setting the column names to the ones you've extracted
         df = pd.read_csv(file_path, skiprows=self.data["first_data_row"], header=None)
