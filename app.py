@@ -69,7 +69,7 @@ def upload_file(contents, filename):
         content_type, content_string = contents.split(",")
         decoded = base64.b64decode(content_string)
         logger.info(f"Decoded file: {filename}")
-
+    
         # Create a temporary file to save the decoded content
         temp_file_path = f"temp_{filename}"
         with open(temp_file_path, "wb") as temp_file:

@@ -81,11 +81,11 @@ class DataLoader:
             logger.info("Converting Excel file to CSV...")
             # use pandas to read the excel file and save it as a csv
             df = pd.read_excel(self.file_info["full_path"])
-            csv_file_path = os.path.join(
-                self.file_info["directory"],
-                os.path.splitext(self.file_info["base_name"])[0] + ".csv",
-            )
-            print(csv_file_path)
+            # get the directory and file name
+            directory, base_name = os.path.split(self.file_info["full_path"])
+            file_name, _ = os.path.splitext(base_name)
+            # add the csv extension
+            csv_file_path = os.path.join(directory, file_name + ".csv")
             # write the csv file
             df.to_csv(csv_file_path, index=False)
             #update the file_info dictionary
@@ -94,7 +94,7 @@ class DataLoader:
             self.file_info["type"] = ".csv"
             logger.info(f"Converted Excel file to CSV: {csv_file_path}")
             
-            
+         
     
     def parse_metadata(self) -> None:
         lines_to_read = 5
