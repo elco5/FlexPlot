@@ -2,7 +2,7 @@ from typing import Dict, Any, List, Callable, Tuple
 import os
 import pandas as pd
 
-from . import flex_parser as fp 
+import data_ingestion.flex_parser as fp 
 from utilities.logging import setup_logger
 
 
@@ -43,9 +43,13 @@ class DataLoader:
 
     def auto_load(self, file_path: str) -> None:
         logger.info("Autoloader runining...")
+        logger.info("Checking file attributes...")
         self.get_file_attributes(file_path)
+        logger.info("Attempting to convert file to CSV...")
+        self.convert_to_csv()
         logger.info("Attempting to parse file metadata...")
         self.parse_metadata()
+        logger.info("Determining header...")
         self.get_header()
         self.load_data()
 
@@ -72,6 +76,26 @@ class DataLoader:
 
         logger.info(f"File attributes populated from: {self.file_info['base_name']}")
 
+    def convert_to_csv(self) -> None:
+        if self.file_info["type"].lower() == ".xlsx":
+            logger.info("Converting Excel file to CSV...")
+            # use pandas to read the excel file and save it as a csv
+            df = pd.read_excel(self.file_info["full_path"])
+            csv_file_path = os.path.join(
+                self.file_info["directory"],
+                os.path.splitext(self.file_info["base_name"])[0] + ".csv",
+            )
+            print(csv_file_path)
+            # write the csv file
+            df.to_csv(csv_file_path, index=False)
+            #update the file_info dictionary
+            self.file_info["full_path"] = csv_file_path
+            self.file_info["base_name"] = os.path.basename(csv_file_path)
+            self.file_info["type"] = ".csv"
+            logger.info(f"Converted Excel file to CSV: {csv_file_path}")
+            
+            
+    
     def parse_metadata(self) -> None:
         lines_to_read = 5
 
@@ -137,7 +161,7 @@ class DataLoader:
 
 
 if __name__ == "__main__":
-    file_path = r"C:\Users\count\dev\FlexPlot\tests\sample_data\wt3000_file.csv"
+    file_path = r"C:\Users\count\dev\FlexPlot\tests\sample_data\sample3_copy.xlsx"
     # file_path = r"C:\Users\count\dev\FlexPlot\tests\sample_data\smartdaq_sample.csv"
     data = DataLoader(file_path=file_path)
     data.auto_load(file_path)
