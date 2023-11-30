@@ -78,8 +78,10 @@ def parse_contents(contents, filename, date):
             )
 
             # Create the figure
+            # fig = go.Figure()
+            # fig.add_trace(temperature_long_df["Temperature"])
             fig = px.line(
-                temperature_long_df, x="datetime", y="Temperature", color="Measurement"
+                temperature_long_df, x="datetime", y="Temperature", color="Measurement", hover_data=["Measurement"]
             )
             return fig
 
